@@ -1,4 +1,6 @@
 extern crate execute;
+extern crate reqwest;
+extern crate scraper;
 use std::io;
 use std::env;
 use std::io::Write;
@@ -6,11 +8,17 @@ use std::process;
 use std::process::{Command, Stdio};
 use execute::{Execute, shell};
 mod menu_1;
+mod webget;
 
 
 fn main() {
-    menu_1::run();
-    let wownerod_version = menu_1::wow_return();
+	println!("\n
+	Loading version from...
+	https://git.wownero.com/wownero/wownero/releases");
+	menu_1::clear_screen();
+	let (wownerod_version,wownerod_download_name) = webget::wowgetvar();
+    menu_1::run(&wownerod_version);
+    //println!("\n\n    version: {} \n    download_path: {}",wownerod_version,wownerod_download_name);
     let mut input_x = String::new();
     while input_x.trim() != "Q" {
 		input_x.clear();
@@ -24,15 +32,15 @@ fn main() {
 			println!("
     https://git.wownero.com/wownero/wownero/releases
 				");
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "H" || input_x.trim() == "h"{
 			menu_1::help();
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "A" || input_x.trim() == "a" {
 			menu_1::about();
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "1" { //1 sudo journalctl -u miner
 			let mut command = shell("sudo journalctl -u miner");
@@ -41,7 +49,7 @@ fn main() {
 			println!("{}", String::from_utf8(output.stdout).unwrap());
 			println!("Finished...
 				");
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "2" { //2 sudo systemctl disable miner && sudo systemctl stop miner
 			let mut command = shell("sudo systemctl disable miner && sudo systemctl stop miner");
@@ -50,7 +58,7 @@ fn main() {
 			println!("{}", String::from_utf8(output.stdout).unwrap());
 			println!("Finished...
 				");
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "5" { //5 sudo nano /etc/systemd/system/miner.service
 			let mut command = shell("sudo nano /etc/systemd/system/miner.service");
@@ -58,7 +66,7 @@ fn main() {
 			println!("{}", String::from_utf8(output.stdout).unwrap());
 			println!("Finished...
 				");
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "4" { //4 Setup Daemon/Configure Miner 'Requires Keys' (Automine on boot)
 			print!("Input Wallet ID: ");
@@ -118,7 +126,7 @@ fn main() {
 			let _output = command.execute_output().unwrap();
 			println!("Finished Daemon Setup
 				");
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else if input_x.trim() == "3" { //3
 			//fetch username
@@ -137,13 +145,13 @@ fn main() {
 			mkdir_wownero.status().expect("process failed to execute");
 			//download wownerod to wownero folder.
 			let mut download_wownerod = Command::new("wget");
-			let  download_path = String::from("https://git.wownero.com/attachments/e9e6fa73-9e3a-4391-af04-64fba8cc6d9e");
+			let  download_path = String::from("https://git.wownero.com/attachments/".to_owned()+&wownerod_download_name); //grab download path from git site
 			println!("    Trying to Download Wownero for Debain ");
 			download_wownerod.arg(String::from(&download_path));
 			download_wownerod.status().expect("process failed to execute");
 			//moving the downloaded file
 			println!("    Trying to Move Wownero file to /home/{}/Downloads ",user_name);
-			let mut move_path = String::from("mv e9e6fa73-9e3a-4391-af04-64fba8cc6d9e");
+			let mut move_path = String::from("mv e9e6fa73-9e3a-4391-af04-64fba8cc6d9e");//make a dynamic var that is grabbed  from download path
 			move_path.push_str(" /home/");
 			move_path.push_str(&user_name);
 			move_path.push_str("/Downloads/wownero_v");
@@ -164,7 +172,7 @@ fn main() {
 			let output = command.execute_output().unwrap();
 			println!("{}", String::from_utf8(output.stdout).unwrap());
 			println!("    Install has finished, Wownerod is installed.");
-			menu_1::run();
+			menu_1::run(&wownerod_version);
 			}
 		else{
 			print!("    Invalid option...

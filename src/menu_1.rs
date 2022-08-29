@@ -1,5 +1,5 @@
 
-pub fn run() {
+pub fn run(wow_return: &String) {
 	print!("- Menu -
     Q. Quit
     W. Wownero Git link
@@ -11,11 +11,7 @@ pub fn run() {
     3. Download Wownerod Verison 'v{}' (~/Downloads)
     4. Setup Daemon/Configure Miner 'Requires Keys' (Automine on boot)
     5. Edit Daemon
-    Input: ", wow_return());
-}
-pub fn wow_return() -> &'static str {
-	let wownerod_version = "0.10.1.0";
-	return wownerod_version;
+    Input: ", wow_return);
 }
 pub fn help() {
 	println!("
@@ -38,4 +34,7 @@ pub fn about() {
     Written: in Rust, a little app to speed the setup of my miners.
     By: Noah , New ideas are appreciated! noahm1611@gmail.com :D
 	");
+}
+pub fn clear_screen() {
+    print!("\x1B[2J\x1B[1;1H");
 }
